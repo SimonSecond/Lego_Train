@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tangram</title>
+    <!-- <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">     -->
+    <link href="fonts/raleway/1Ptxg8zYS_SKggPN4iEgvnHyvveLxVvaorCFPrEHJA.woff2" rel="stylesheet">     
+
+    <style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {margin: 0; height: 100%; overflow: hidden}
+      
+body {
+  background-color: #f1f1f1;
+}
+
+/* #regForm {
+  background-color: #ffffff;
+  margin: 10px auto;
+  font-family: Raleway;
+  padding: 20px;
+  width: 628px;
+  max-width: 628px;
+} */
+
+#regForm {
+  background-color: #ffffff;
+  margin: 0px auto;
+  font-family: Raleway;
+  padding: 20px;
+  width: 1640px;
+  max-width: 1640px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center; 
+}
+
+h1 {
+  text-align: center;
+  font-size: 5em;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+input {
+  padding: 10px;
+  width: 100%;
+  font-size: 27px;
+  font-family: Raleway;
+  border: 1px solid #aaaaaa;
+}
+
+select {
+  padding: 10px;
+  width: 100%;
+  font-size: 27px;
+  font-family: Raleway;
+  border: 1px solid #aaaaaa;
+}
+
+/* Mark input boxes that gets an error on validation: */
+select.invalid {
+  background-color: #ffdddd;
+}
+
+/* Mark input boxes that gets an error on validation: */
+input.invalid {
+  background-color: #ffdddd;
+}
+
+/* Hide all steps by default: */
+.tab {
+  display: none;
+
+}
+
+button {
+  background-color: #5733FF;
+  color: #ffffff;
+  border: none;
+  padding: 5px 5px;
+  min-width: 120px;
+  margin: 2px 2px;
+  font-size: 17px;
+  font-family: Raleway;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+#prevBtn {
+  background-color: #bbbbbb;
+}
+
+.progressContainer {
+  width: 100%;
+  background-color: #f1f1f1;
+  border-radius:15px;
+  float:left;
+}
+
+.progressBar {
+  padding: 10px 20px;
+  width: 1%;
+  height: 10px;
+  background-color: #757575;
+  border-radius:15px;  
+}
+
+.bonusContainer {
+  width: 10%;
+  background-color: #757575;
+  border-radius:15px;
+  overflow:auto;
+}
+
+
+#traceBonus {
+  margin: 0px;
+  color: #ffffff;
+}
+
+#updownBonus {
+  margin: 0px;
+  color: #ffffff;
+}
+
+#trialTitle {
+  margin: 5px;
+}
+p {
+  font-size: 25px; 
+}
+</style>
+  </head>
+  <body>
+    <script> var locFrame; var trialFrame; var probeFrame;    </script>
+    <div id="regForm">
+      <!-- Header: changes to task.trial/task.block indicator -->
+      <h1 id="header">积木游戏</h1>
+      <!-- <h1 id="header">Silhouette game</h1> -->
+      <!-- Tab for prolific Id -->
+      <div class="tab">
+        <!-- <p>Please submit subject id and name.</p> -->
+        <p>请依次输入编号、姓名、阶段、天数、关数信息。</p>
+        <!-- Input field to fill out prolific id -->     
+        <p><input id="subject" placeholder="00" oninput="this.className = ''"></p> 
+        <p><input id="name" placeholder="xiaoming" oninput="this.className = ''"></p>         
+        <p><input id="session" placeholder= "0/1" oninput="this.className = ''"></p>        
+        <p><input id="day" placeholder="1/4" oninput="this.className = ''"></p>         
+        <p><input id="initialBlock" placeholder="1~10" oninput="this.className = ''"></p>         
+ 
+        <!-- Button to submit prolific id and continue --> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()"> </button> -->
+            <button type="button" class="buttonNextTab" id="fullscreen-button" onclick="selecttab()">确定</button>
+          </div>
+        </div>
+      </div>     
+      
+      <!-- Tab for general introduction 1 -->
+      <div id="ini" class="tab">
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;欢迎来到积木游戏！</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;您即将看到一些积木图案,这些图案由<span style="color: red; font-weight: bold;">2</span>个基本元素构成，如下图所示</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;您需要判断出现的积木图案由哪些基本元素构成，并选择它。请尽可能地熟悉基本元素。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+          <p style="text-align:center;"><img src="pre.gif" alt="Example1" style="width:800px"></p> 
+
+        <!-- <p>Welcome! You'll now see some shapes. Please read out their names as they come along</p> -->
+        <!-- Continue button --> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab for localiser: iframe and next button -->
+      <div id="localiser" class="tab">
+        <iframe id="taskframe" src="localiser.html" style="width: 1600px; height: 800px; overflow: hidden;" scrolling="no" frameborder="0" name="iframe_a"></iframe>
+      </div>      
+
+      <!-- Tab to ask for permission to store data -->
+      <div id = "final2" class="tab">
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;非常好，您的平均正确率是 <strong id="accuracy_probe2">NaN</strong> 您成功地完成了 <strong id="correct_probe2">NaN</strong> 个题目. 请点击下面的按钮返回初始页面.</p>    
+        <!-- <p>Well done! Your average accuracy was <strong id="accuracy">NaN</strong> and you found the perfect solution for <strong id="correct">NaN</strong> puzzles. Click the button below to go back to prolific.</p>     -->
+        <!-- Button to agree and continue --> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Get data</button> -->
+            <button type="button" class="buttonNextTab" onclick="nextTab()">返回</button>
+          </div>
+        </div>    
+      </div>
+
+      <!-- Tab for introduction to silhouette game probe -->
+      <div id="enter_probe0" class="tab">
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: red; font-weight: bold;">练习阶段</span></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来会呈现一个图形和若干个选项，都由不同的基本元素组成。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在当前阶段，图形和选项都由
+          <span style="color: red; font-weight: bold;">2</span> 个基本元素组成，下方有
+          <span style="color: red; font-weight: bold;">3</span> 个选项，</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要识别哪些选项包含目标图形的基本元素，并选择它。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;确认后点击下方的按钮开始作答!</p>
+        <!-- <p>You can use the Restart button to send the building blocks back to their original locations, and the Submit button after covering the target with your solution. There are 21 puzzles in total. Good luck!</p> -->
+        <!-- Button to continue to next tab --> 
+        <p style="text-align:center;"><img src="Probe.gif" alt="Example5" style="width:800px"></p> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+          </div>
+        </div>
+      </div>     
+
+       <!-- Tab for silhouette game: iframe and next button -->
+       <div id="probe1" class="tab">
+        <iframe id="taskframe" src="probe.html" style="width: 1600px; height: 800px; overflow: hidden;" scrolling="no" frameborder="0" name="iframe_a"></iframe>
+        <!-- <div style="overflow:auto;">
+          <div style="float:right;";>
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+          </div>
+        </div> -->
+      </div>
+
+      <!-- Tab to ask for permission to store data -->
+      <div id = "final1" class="tab">
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;非常好，您的平均正确率是 <strong id="accuracy_probe">NaN</strong> 您成功地完成了 <strong id="correct_probe">NaN</strong> 个题目. 请点击下面的按钮继续.</p>    
+        <!-- <p>Well done! Your average accuracy was <strong id="accuracy">NaN</strong> and you found the perfect solution for <strong id="correct">NaN</strong> puzzles. Click the button below to go back to prolific.</p>     -->
+        <!-- Button to agree and continue --> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Get data</button> -->
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一组</button>
+          </div>
+        </div>    
+      </div>
+      
+      <!-- Tab to ask for permission to store data -->
+      <div id = "redo" class="tab">
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;抱歉，您做错了 <span style="color: red; font-weight: bold;"><strong id="wrong_probe">NaN</strong></span> 个题目, 错误率超过<span style="color: red; font-weight: bold;">10%</span>. 请点击下面的按钮重新开始该block.</p>    
+        <!-- <p>Well done! Your average accuracy was <strong id="accuracy">NaN</strong> and you found the perfect solution for <strong id="correct">NaN</strong> puzzles. Click the button below to go back to prolific.</p>     -->
+        <!-- Button to agree and continue --> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Get data</button> -->
+            <button type="button" class="buttonNextTab" onclick="nextTab()">重新开始</button>
+          </div>
+        </div>    
+      </div>
+
+      <!-- Tab for introduction to silhouette game probe -->
+      <div id="enter_probe1" class="tab">
+        <p>当前阶段: <span id="currentBlockStage1" style="color: black; font-weight: normal;"></span></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来会呈现一个图形和若干个选项，都由不同的基本元素组成。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在当前阶段，图形和选项都由
+          <span style="color: red; font-weight: bold;">2</span> 个基本元素组成，下方有
+          <span style="color: red; font-weight: bold;">3</span> 个选项，</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要识别哪些选项包含目标图形的基本元素，并选择它。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;确认后点击下方的按钮开始作答!</p>
+        <!-- <p>You can use the Restart button to send the building blocks back to their original locations, and the Submit button after covering the target with your solution. There are 21 puzzles in total. Good luck!</p> -->
+        <!-- Button to continue to next tab --> 
+        <p style="text-align:center;"><img src="Probe.gif" alt="Example5" style="width:800px"></p> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab for introduction to silhouette game probe -->
+      <div id="enter_probe2" class="tab">
+        <p>当前阶段: <span id="currentBlockStage2" style="color: black; font-weight: normal;"></span></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来会呈现一个图形和若干个选项，都由不同的基本元素组成。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在当前阶段，图形和选项都由
+          <span style="color: red; font-weight: bold;">2</span> 个基本元素组成，下方有
+          <span style="color: red; font-weight: bold;">4</span> 个选项，</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要识别哪些选项包含目标图形的基本元素，并选择它。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;确认后点击下方的按钮开始作答!</p>
+        <!-- <p>You can use the Restart button to send the building blocks back to their original locations, and the Submit button after covering the target with your solution. There are 21 puzzles in total. Good luck!</p> -->
+        <!-- Button to continue to next tab --> 
+        <p style="text-align:center;"><img src="Probe1.gif" alt="Example5" style="width:800px"></p> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+          </div>
+        </div>
+      </div>   
+      
+      <!-- Tab for introduction to silhouette game probe -->
+      <div id="enter_probe3" class="tab">
+        <p>当前阶段: <span id="currentBlockStage3" style="color: black; font-weight: normal;"></span></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来会呈现一个图形和若干个选项，都由不同的基本元素组成。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在当前阶段，图形和选项都由
+          <span style="color: red; font-weight: bold;">2</span> 个基本元素组成，下方有
+          <span style="color: red; font-weight: bold;">5</span> 个选项，</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要识别哪些选项包含目标图形的基本元素，并选择它。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;确认后点击下方的按钮开始作答!</p>
+        <!-- <p>You can use the Restart button to send the building blocks back to their original locations, and the Submit button after covering the target with your solution. There are 21 puzzles in total. Good luck!</p> -->
+        <!-- Button to continue to next tab --> 
+        <p style="text-align:center;"><img src="Probe2.gif" alt="Example5" style="width:800px"></p> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+          </div>
+        </div>
+      </div> 
+
+      <!-- Tab for introduction to silhouette game probe -->
+      <div id="enter_probe4" class="tab">
+        <p>当前阶段: <span id="currentBlockStage4" style="color: black; font-weight: normal;"></span></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来会呈现一个图形和若干个选项，都由不同的基本元素组成。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在当前阶段，图形和选项都由
+          <span style="color: red; font-weight: bold;">3</span> 个基本元素组成，下方有
+          <span style="color: red; font-weight: bold;">4</span> 个选项，</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要识别哪些选项包含目标图形的基本元素，并选择它。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;确认后点击下方的按钮开始作答!</p>
+        <!-- <p>You can use the Restart button to send the building blocks back to their original locations, and the Submit button after covering the target with your solution. There are 21 puzzles in total. Good luck!</p> -->
+        <!-- Button to continue to next tab --> 
+        <p style="text-align:center;"><img src="Probe3.gif" alt="Example5" style="width:800px"></p> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab for introduction to silhouette game probe -->
+      <div id="enter_probe5" class="tab">
+        <p>当前阶段: <span id="currentBlockStage5" style="color: black; font-weight: normal;"></span></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来会呈现一个图形和若干个选项，都由不同的基本元素组成。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在当前阶段，图形和选项都由
+          <span style="color: red; font-weight: bold;">3</span> 个基本元素组成，下方有
+          <span style="color: red; font-weight: bold;">5</span> 个选项，</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要识别哪些选项包含目标图形的基本元素，并选择它。</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;正确率若低于<span style="color: red; font-weight: bold;">90%</span>将自动结束本关，并提示重新开始。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;确认后点击下方的按钮开始作答!</p>
+        <!-- <p>You can use the Restart button to send the building blocks back to their original locations, and the Submit button after covering the target with your solution. There are 21 puzzles in total. Good luck!</p> -->
+        <!-- Button to continue to next tab --> 
+        <p style="text-align:center;"><img src="Probe4.gif" alt="Example5" style="width:800px"></p> 
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="nextTab()">下一步</button>
+            <!-- <button type="button" class="buttonNextTab" onclick="nextTab()">Next</button> -->
+          </div>
+        </div>
+      </div>
+
+      <div id = "finish" class="tab"> 
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;非常好，您成功地完成了今天的训练. 请点击下面的按钮结束.</p>    
+
+        <div style="overflow:auto;">
+          <div style="float:right;">
+            <button type="button" class="buttonNextTab" onclick="finishTab()">结束</button>
+          </div>
+        </div>    
+      </div>
+    </div>
+
+
+    
+<!-- Load list of target from separate file -->
+<script type="text/javascript" src="targets.js"></script>    
+<script type="text/javascript" src="FileSaver.js"></script>    
+<script>  
+
+debug = false;
+
+
+//enter fullscreen mode
+document.getElementById("fullscreen-button").addEventListener("click",function(){
+  var fullscreen = document.documentElement; 
+  if (fullscreen.requestFullscreen) {
+    fullscreen.requestFullscreen();
+  } else if (element.mozRequestFullScreen) {
+    fullscreen.mozRequestFullScreen(); // Firefox
+  } else if (element.webkitRequestFullscreen) {
+    fullscreen.webkitRequestFullscreen(); // Chrome, Safari, and Opera
+  } else if (element.msRequestFullscreen) {
+    fullscreen.msRequestFullscreen(); // Internet Explorer
+  }
+
+})
+
+// Set everything that is not specific to participants here. Start with tab information
+// Define colours
+var c_blue = '#5733FF';
+var c_dk_blue = '#2703C9';
+var c_red = '#C92703';
+var c_green = '#03C927';
+
+// Create a task namespace, resulting in a) better control of globals and b) easy collection of all variables
+var task = {}; // Anything that is participant specific should go in here, so it can be reloaded
+
+// Version of the task: maybe play with parameters, keep track which values in which version
+task.version = 4; // Needs to be in task so local file can be overwritten if it is for different version
+// Version 1: sub 41 Day 1, version 1 without recording phase
+// Version 2: sub 41 Day 2,
+// 1. task.version = Version 1
+// 2. Added recording phase;
+// Version 3:
+// 1. Added the gamepad check in Function loc.
+// 2. Completed the recording phase: Added the record check in Trace.
+// 3. Adapted to eye tracking, recording every element and targets' location.
+// Version 4 - 0729:
+// 1. Added the input of blocks
+// Initialise prolific id variable
+task.subjectTag = "";  
+tab_save = [];
+
+// Set prolific id from url, if available
+var captured = /SUBJECT_TAG=([^&]+)/.exec(window.location.href);
+if (captured != null)
+{
+  document.getElementById('subject').value = captured[1];
+}
+
+
+/*************************************************** INITIALISE TASK HERE******************************************************/
+// Store start time so it can be loaded if partipant refreshes halfway through
+task.start = Date.now();  
+task.startTime = new Date();  
+if(debug){
+  task.loc_repeats = 2;
+}else{
+  task.loc_repeats = 2;
+}
+/***************************************************localiser******************************************************/
+// task.primitives = ['cross','line','corner','hat','square'];
+task.primitives = ['左上角','右上角','左下角','右下角','点格','短竖','长竖','短横','长横'];
+task.n_locs = task.loc_repeats * task.primitives.length;
+
+task.loc_program = []	;//the right name for all the task.n_locs                   
+task.loc_ids = [];//the index of the task.primitives for all the task.n_locs      
+task.loc_shape = [];//the right shape for all the task.n_locs                     
+task.loc_text = []	;//the present name for all the task.n_locs     
+
+task.loc_response = [];//the right response for all the task.n_locs           
+task.loc_Coorectres = [];//the right response for all the task.n_locs         
+task.loc_ACCresponse = [];//the right response for all the task.n_locs        
+
+task.loc_start_fix = [];                                                      
+task.loc_time_fix = [];                                       
+
+task.loc_start_Stim = [];//the time when stim on                               
+task.loc_time = [] ;//the time for the duration of stims  
+
+task.loc_start_text=[];                                                          
+task.loc_start_response=[];                           
+
+task.loc_start_fb=[];//if correct, there is no feedback 
+
+task.loc_start_iti = [];                                                        
+task.loc_time_iti = [] ;//the time for the duration of stims                          
+
+//record data
+for (currLoc = 0; currLoc < task.n_locs; currLoc +=1)
+	{
+		task.loc_ids[currLoc] = currLoc % 5;
+    task.loc_response[currLoc] =-1;
+    task.loc_start_fix[currLoc] = -1;
+    task.loc_start_Stim[currLoc] = -1; 
+		task.loc_time_fix[currLoc] = -1;        
+		task.loc_time[currLoc] = -1;
+    task.loc_start_text[currLoc]=-1;
+    task.loc_start_response[currLoc]=-1;
+    task.loc_start_fb[currLoc]=-1;//if correct, there is no feedback
+    task.loc_start_iti[currLoc] = -1;
+    task.loc_ACCresponse[currLoc] = -1;
+    task.loc_time_iti[currLoc] = -1 ;//the time for the duration of stims                             
+	}  
+// Set shuffle sets: batches of trials that need to be shuffled
+task.loc_shuffle_sets = [];
+for (let currBatch = 0; currBatch < task.loc_repeats; currBatch +=1)
+  {task.loc_shuffle_sets[currBatch] = task.primitives.length;
+  }
+// Shuffle which target is shown in which trial
+task.loc_shuffled = [];
+// Select portion for shuffling with splice, then shuffle, then add to shuffled
+for (let currSet = 0; currSet < task.loc_shuffle_sets.length; currSet += 1)
+  {
+  var toShuffle = task.loc_ids.splice(0, task.loc_shuffle_sets[currSet]); 
+  shuffleArray(toShuffle);
+  task.loc_shuffled.push.apply(task.loc_shuffled, toShuffle);
+  }
+// Targets id list has been cleared by shuffling, now re-assign it to shuffled version
+task.loc_ids = task.loc_shuffled;
+
+// Fill out targets
+for (currLoc = 0; currLoc < task.n_locs; currLoc +=1)
+	{
+		//task.stimNames[currLoc] = task.primitives[task.loc_ids[currLoc]];	
+    task.loc_shape[currLoc] = primitives[task.loc_ids[currLoc]];
+    var randomInteger = Math.round(Math.random());
+    task.loc_program[currLoc] = task.primitives[task.loc_ids[currLoc]];	
+    if (randomInteger==1){
+      task.loc_text[currLoc] = task.primitives[task.loc_ids[currLoc]];		
+      task.loc_Coorectres[currLoc]=1;
+    }else{
+      var filteredIndexes  = [0,1,2,3,4].filter(item => item !== task.loc_ids[currLoc]);
+      var index = filteredIndexes[Math.floor(Math.random() * filteredIndexes.length)];
+      task.loc_text[currLoc] = task.primitives[index];		
+      task.loc_Coorectres[currLoc]=0;
+    }
+	} 
+  
+  /***************************************************blocks******************************************************/
+  //initial blocks settings                        
+  task.blocks_AllNums = 100;
+  task.blocks_tabs = 5;
+  // Version 4 240729;
+  // if (typeof  task.blocks ==='undefined')
+  // {
+    task.block_Curr=0;
+  //   console.log(task.block_Curr);
+
+  // }else{
+  //   task.block_Curr = task.blocks-1;//0;  
+  //   console.log(task.block_Curr);
+
+  // }
+   task.block={}
+  /***************************************************Trace & probe******************************************************/
+  //create what should be saved as a data 
+
+var totalTabs = document.getElementsByClassName("tab").length;
+var totalTabs_super = document.getElementsByClassName("tab").length + (task.blocks_AllNums -1)*task.blocks_tabs ;
+// Build task trial structure, filled with subject-specific stuff
+// Target for each trial
+var choice_num;
+var whetherbreakloop = false;
+var errorCount = 0;
+
+var allIndices1 = [];
+// 为 targets1[0][0][0] 中的每个元素创建一个索引数组
+for (let i = 0; i < targets1[0][0][0].length; i++) {
+  allIndices1.push(i); // 索引从0开始
+  }
+
+var allIndices2 = [];
+// 为 targets[0][0][0] 中的每个元素创建一个索引数组
+  for (let i = 0; i < targets2[0][0][0].length; i++) {
+    allIndices2.push(i); // 索引从0开始
+  }
+
+function initialization(){
+  if (task.block_Curr <= 6) 
+{
+  targets = targets1;
+} else {
+  targets = targets2;
+}
+console.log("目标矩阵总数:",targets[0][0][0].length)
+  task.trial = -1;
+  task.trial_repeats = 1;
+  errorCount = 0;
+  if (task.block_Curr == 0)
+{
+  task.n_trials = 2;//(targets[0][0][task.block_Curr].length) * task.trial_repeats;
+} else if (task.block_Curr > 0 && task.block_Curr<= 10) {
+  task.n_trials = 2;
+} else if (task.block_Curr == -1) {
+  task.n_trials = 2;
+} else {
+  task.block_Curr = 0;
+}
+  task.trial_target_ids = [];
+  task.trial_original_indices = []; // 用于保存每个 target 的原始位置
+  task.trial_target = [];
+  task.trial_start = [];
+  task.trial_time = [];
+  task.trial_events = [];
+  task.trial_solution = [];
+  task.trial_result = [];
+  task.trial_correct = [];
+  task.trial_wrong = [];
+  task.trial_program = [];
+  
+  // 随机选择矩阵的索引
+  let selectedMatrixIndices = [];
+  if (task.block_Curr <= 6)
+  { console.log("所有索引1-1:",allIndices1);
+    while (selectedMatrixIndices.length < task.n_trials) {
+      let randomIndex = Math.floor(Math.random() * allIndices1.length); // 从所有索引中随机选一个
+      selectedMatrixIndices.push(allIndices1[randomIndex]); // 将该索引加入已选择数组
+      allIndices1.splice(randomIndex, 1); // 从 allIndices 中移除已选择的索引
+    }
+    console.log("所有索引1-2:",allIndices1);
+  } else {
+    console.log("所有索引2-1:",allIndices2);
+    while (selectedMatrixIndices.length < task.n_trials) {
+      let randomIndex = Math.floor(Math.random() * allIndices2.length); // 从所有索引中随机选一个
+      selectedMatrixIndices.push(allIndices2[randomIndex]); // 将该索引加入已选择数组
+      allIndices2.splice(randomIndex, 1); // 从 allIndices 中移除已选择的索引
+    }
+    console.log("所有索引2-2:",allIndices2);
+  }
+
+  // 填充试次数据
+  for (let currTrial = 0; currTrial < task.n_trials; currTrial += 1) {
+    let matrixIndex = selectedMatrixIndices[currTrial]; // 当前选择的矩阵索引
+    task.trial_target_ids[currTrial] = matrixIndex; // 保存选择的矩阵索引
+    task.trial_target[currTrial] = targets[matrixIndex]; // 获取对应的矩阵
+    task.trial_start[currTrial] = -1;
+    task.trial_time[currTrial] = -1;
+    task.trial_events[currTrial] = [];
+    task.trial_solution[currTrial] = -1;
+    task.trial_result[currTrial] = -1;
+    task.trial_correct[currTrial] = -1;
+    task.trial_wrong[currTrial] = -1;
+  }
+ 
+// Set shuffle sets: batches of trials that need to be shuffled
+// I.e. to shuffle all, just a single batch [task.n_trials]
+// But to shuffle training and testing separately: [n_train, n_test]
+task.shuffle_sets = [];
+for (currBatch = 0; currBatch < task.trial_repeats; currBatch +=1)
+console.log("task.block_Curr:", task.block_Curr);
+  task.shuffle_sets[currBatch] = targets[0][0][0].length;
+// Shuffle which target is shown in which trial
+task.shuffled = [];
+// Select portion for shuffling with splice, then shuffle, then add to shuffled
+for (let currSet = 0; currSet < task.shuffle_sets.length; currSet += 1)
+  {
+  var toShuffle = task.trial_target_ids.splice(0, task.shuffle_sets[currSet]);
+  shuffleArray(toShuffle);
+  task.shuffled.push.apply(task.shuffled, toShuffle);
+  }
+// // Targets id list has been cleared by shuffling, now re-assign it to shuffled version
+ task.trial_target_ids = task.shuffled;
+// Fill out targets
+for (currTrial = 0; currTrial < task.n_trials; currTrial +=1)
+  {
+    if(!(task.subjectTag=="")){
+      task.trial_target[currTrial] = targets[0][task.day-1][0][task.trial_target_ids[currTrial]];
+      task.trial_program[currTrial] = null;
+    }
+  }
+
+  if (task.block_Curr == 0) 
+  {
+    choice_num = 3;
+    tab_save = 4;
+    console.log("tab_save",tab_save);
+    updateCurrentBlockStage();
+  } else if (task.block_Curr > 0 && task.block_Curr <= 2) {
+  choice_num = 3;
+  tab_save = 8;
+  updateCurrentBlockStage();
+} else if (task.block_Curr > 2 && task.block_Curr <= 4) {
+  choice_num = 4;
+  tab_save = 9;
+  updateCurrentBlockStage();
+} else if (task.block_Curr > 4 && task.block_Curr <= 6) {
+  choice_num = 5;
+  tab_save = 10;
+  updateCurrentBlockStage();
+} else if (task.block_Curr > 6 && task.block_Curr <= 8) {
+  choice_num = 4;
+  tab_save = 11;
+  updateCurrentBlockStage();
+} else if (task.block_Curr > 8 && task.block_Curr <= 10) {
+  choice_num = 5;
+  tab_save = 12;
+  updateCurrentBlockStage();
+} else {
+  choice_num = 8;
+  tab_save = 1;
+}
+console.log("选项个数:",choice_num);
+}
+
+initialization();// Version 4 240729;
+// Set bonus payment
+task.bonus = 0;
+// Set initial tab
+task.tab = 0;
+// Set initial localiser
+task.loc = -1;
+task.trial_trace = 0;
+task.trial_probe = 0;   
+task.currentID = "null";
+function store_trial(){
+  // Set initial trial
+  task.block[task.trial_probe+task.trial_trace]={
+  //trial_target_ids:task.trial_target_ids,
+  //trial_target    :task.trial_target    , 
+  //trial_start     :task.trial_start     , 
+  //trial_time      :task.trial_time      , 
+  //trial_events    :task.trial_events    , 
+  //trial_solution  :task.trial_solution  ,  
+  //trial_result    :task.trial_result    ,
+  trial_correct   :task.trial_correct   , 
+  //trial_program   :task.trial_program   ,
+}
+}
+  /***************************************************Trace******************************************************/
+  task.mousePositions=[];
+
+task.Trace_start_instru = [];                                                       
+task.Trace_start_fix = [];                                                       
+task.Trace_time_fix = [];                                                        
+task.Trace_start_Planning = [];//the time when BicCompLoc on                                                                      
+task.Trace_start_Dragging = [];//the time when BicCompLoc&stim on  
+task.Trace_start_iti_Added = [];                                                          
+task.Trace_time_iti_Added = [];                                                          
+task.Trace_start_iti = [];                                                          
+task.Trace_time_iti = [];     
+//Version 2 20240317 
+task.Trace_start_Record = [];//the time when BicCompLoc&Recording on  
+task.Trace_time_Record = []; //the time when BicCompLoc&Recording on     
+//Version 3 20240402
+task.Trace_BigCompLoc =[];//for phase presentLargeTarget and presentRecording
+task.Trace_SmallCompLoc =[];//for phase presentLargeTarget and presentRecording
+
+for (currLoc = 0; currLoc < task.n_trials; currLoc +=1)
+	{
+    task.Trace_start_instru[currLoc] =-1;
+    task.Trace_start_fix[currLoc] = -1;
+    task.Trace_time_fix[currLoc] = -1; 
+		task.Trace_start_Planning[currLoc] = -1;        
+		task.Trace_start_Dragging[currLoc] = -1;        
+		task.Trace_start_iti[currLoc] = -1;        
+		task.Trace_time_iti[currLoc] = -1;
+    task.Trace_start_iti_Added[currLoc] = -1;        
+		task.Trace_time_iti_Added[currLoc] = -1;
+    //Version 2 20240317 
+    task.Trace_start_Record[currLoc] = -1;
+    task.Trace_time_Record[currLoc] = -1;     
+    //Version 3 20240402
+    task.Trace_BigCompLoc[currLoc] =-1;//for phase presentLargeTarget and presentRecording
+    task.Trace_SmallCompLoc[currLoc] =-1;//for phase presentLargeTarget and presentRecording
+	}
+/***************************************************Probe*****************************************************/
+task.Probe_start_instru = [];                                                       
+task.Probe_start_fix = [];                                                       
+task.Probe_time_fix = [];                                                        
+task.Probe_start_Planning = [];//the time when stim on                                                                      
+task.Probe_start_Dragging = [];//the time when stim on                                                                      
+task.Probe_start_iti = [];                                                          
+task.Probe_time_iti = [];   
+task.Probe_start_iti_Added = [];                                                          
+task.Probe_time_iti_Added = [];
+                                                    
+for (currLoc = 0; currLoc < task.n_trials; currLoc +=1)
+	{
+    task.Probe_start_instru[currLoc] =-1;
+    task.Probe_start_fix[currLoc] = -1;
+    task.Probe_time_fix[currLoc] = -1; 
+		task.Probe_start_Planning[currLoc] = -1;        
+		task.Probe_start_Dragging[currLoc] = -1;        
+		task.Probe_start_iti[currLoc] = -1;        
+		task.Probe_time_iti[currLoc] = -1;
+    task.Probe_start_iti_Added[currLoc] = -1;        
+		task.Probe_time_iti_Added[currLoc] = -1;
+	}
+  /***************************************************Funcs******************************************************/
+// Check if a local storage file exists
+if (localStorage.getItem("task") === null)
+  {
+  // If it doesn't: create one with all task values so far
+  localStorage.setItem("task", JSON.stringify(task));
+  // Start task: begin by showing first tab
+  showTab(task.tab);   
+  }
+else
+  {
+    // If it does: load all parameters and continue where user left off
+    existingTask = localStorage.getItem("task");
+    // And parse JSON object
+    existingTask = JSON.parse(existingTask);
+    // Check if version matches current version
+    if (task.version == existingTask.version)
+      {
+      // If version matches: copy existing task
+      task = existingTask;
+      }
+    else
+      {
+      // If different version from existing one: overwrite
+      localStorage.setItem("task", JSON.stringify(task));
+      }
+    // Show current tab
+    showTab(task.tab)  
+  }
+// Log current task to console
+// Display the specified tab of the form
+function showTab(n) {
+  console.log('Showing tab ' + n.toString());
+  // Reset title
+  // document.getElementById("header").innerHTML = "Silhouette Game";
+  document.getElementById("header").innerHTML = "积木游戏";
+  // Collect all tabs
+  var x = document.getElementsByClassName("tab");
+  var id = x[n].id.toString()
+  console.log('Showing tab :', x[n].id);
+  //console.log(id);
+
+  // Hide them all 
+  for (i = 0; i < x.length; i+=1) {
+    x[i].style.display = "none";
+  }
+  // Display current one
+  x[n].style.display = "block";
+  // If this is the localiser tab: start showing loc
+  if (n == 1)
+  {
+    task.block_Curr = -1
+  }
+  if (n == 2)
+  {
+    task.block_Curr = -1;//-1;  
+    initialization();// Version 4 240729;
+  }
+  if (x[n].id == "localiser"){
+    showLoc();
+  }
+  //start a new block, show it
+  if (x[n].id == "enter_trace"){
+    var curr_block = task.block_Curr+1;
+  	document.getElementById("blocks").innerHTML = curr_block;
+  }
+
+  // If this is the builder tab: start showing trace
+  if (x[n].id == "trace"){
+    parent.initialization();
+    showTrace();  
+  }
+    // If this is the probe tab: start showing probe,after a block, plus blocks
+  if (x[n].id == "enter_probe0"){
+  }
+  if (x[n].id == "probe1"){
+    parent.initialization();
+    //console.log(task);
+
+    showProbe();  
+  }
+  
+  if(x[n].id == "trace_acc"){
+    var count = 0;
+  	var sum = 0;
+    var sum_n_trials=task.n_trials; 
+    var current=task.trial_trace+task.trial_probe;
+    for (currTrial = 0; currTrial < sum_n_trials; currTrial +=1)
+  		{
+        count += (task.block[current].trial_correct[currTrial] == 1);
+  		  sum += task.block[current].trial_correct[currTrial];
+        if(!debug){
+          if (task.block[current].trial_correct[currTrial] == -1){ 
+            alert("请刷新网页")
+          }
+        }
+  		};	
+    document.getElementById("correct_trace").innerHTML = count.toString() + '/' + sum_n_trials.toString();
+  	// document.getElementById("accuracy_trace").innerHTML = Math.round(sum /sum_n_trials* 100).toString() + ' %';
+    var acc = count/sum_n_trials*100 ;
+  	document.getElementById("accuracy_trace").innerHTML = acc.toFixed(2)  + ' %';
+    //debugger;
+  }
+  // If this is the last tab: update results
+  if (x[n].id == "final2")
+    {
+    // Calculate average accuracy  	
+    var count = 0;
+  	var sum = 0;
+    var sum_n_trials=task.n_trials; 
+    var current=task.trial_trace+task.trial_probe;
+
+    for (currTrial = 0; currTrial < sum_n_trials; currTrial +=1)
+  		{
+        count += (task.block[current].trial_correct[currTrial] == 1);
+        sum += task.block[current].trial_correct[currTrial];
+        if(!debug){
+
+          if (task.block[current].trial_correct[currTrial] == -1){
+            alert("请刷新网页")
+          }
+        }
+  		}		  	
+    // Update result string for updown
+    document.getElementById("correct_probe2").innerHTML = count.toString() + '/' + sum_n_trials.toString();
+  	document.getElementById("accuracy_probe2").innerHTML = Math.round(sum /sum_n_trials* 100).toFixed(2) + ' %';
+	}
+  if (x[n].id == "final1")
+    {
+    // Calculate average accuracy  	
+    var count = 0;
+  	var sum = 0;
+    var sum_n_trials=task.n_trials; 
+    var current=task.trial_trace+task.trial_probe;
+
+    for (currTrial = 0; currTrial < sum_n_trials; currTrial +=1)
+  		{
+        count += (task.block[current].trial_correct[currTrial] == 1);
+        sum += task.block[current].trial_correct[currTrial];
+        if(!debug){
+
+          if (task.block[current].trial_correct[currTrial] == -1){
+            alert("请刷新网页")
+          }
+        }
+  		}		  	
+    // Update result string for updown
+    document.getElementById("correct_probe").innerHTML = count.toString() + '/' + sum_n_trials.toString();
+  	document.getElementById("accuracy_probe").innerHTML = Math.round(sum /sum_n_trials* 100).toFixed(2) + ' %';
+	}
+  
+
+  /* if (x[n].id == "finish")
+    {
+    // Calculate average accuracy  	
+    var count = 0;
+    var sum = 0;
+    var sum_n_trials=task.n_trials; 
+    var allblock=Object.keys(task.block).length;
+    var sum_block_trials = sum_n_trials * 9;
+    for(current=1;current <= 9; current+=1 ){
+        for (currTrial = 0; currTrial < sum_n_trials; currTrial +=1)
+            {
+              count += (task.block[current].trial_correct[currTrial] == 1);
+            }		
+    }
+    // Update result string for updown
+    document.getElementById("correct_all").innerHTML = count.toString() + '/' + sum_block_trials.toString();
+  	document.getElementById("accuracy_all").innerHTML = Math.round(count /sum_block_trials* 100).toFixed(2) + ' %';
+
+	} */
+  }
+
+function selecttab(){
+  nextTab();
+}
+
+function updateCurrentBlockStage() {
+  let stage, block;
+  
+  // 计算阶段和block
+  if (task.block_Curr <= 2) {
+    stage = 1;
+    block = task.block_Curr;
+    // 更新显示内容为 "第N阶段/blockM" 格式
+    document.getElementById("currentBlockStage1").innerText = `第${stage}阶段/block${block}`;
+  } else if (task.block_Curr <= 4) {
+    stage = 2;
+    block = task.block_Curr - 2;
+    document.getElementById("currentBlockStage2").innerText = `第${stage}阶段/block${block}`;
+  } else if (task.block_Curr <= 6) {
+    stage = 3;
+    block = task.block_Curr - 4;
+    document.getElementById("currentBlockStage3").innerText = `第${stage}阶段/block${block}`;
+  } else if (task.block_Curr <= 8) {
+    stage = 4;
+    block = task.block_Curr - 6;
+    document.getElementById("currentBlockStage4").innerText = `第${stage}阶段/block${block}`;
+  } else if (task.block_Curr <= 10) {
+    stage = 5;
+    block = task.block_Curr - 8;
+    document.getElementById("currentBlockStage5").innerText = `第${stage}阶段/block${block}`;
+  } 
+}
+
+// 检查错误率并在错误超过20%时重新开始 block
+function checkErrorRate() {
+  var sum_n_trials = window.parent.task.n_trials;
+    // 检查当前试次是否为错误试次（假设正确试次为1，错误为0）
+    if (task.trial_correct[task.trial] == 0) {
+        errorCount += 1;
+    }
+
+// 计算错误率
+var errorRate = errorCount / sum_n_trials;
+   console.log("错误率:", errorRate);
+
+  if (errorRate > 0.1) { // 如果错误率大于10%
+    console.log("错误率超过10%，重新开始该 block");
+    whetherbreakloop = true;
+    document.getElementById("wrong_probe").innerHTML = errorCount.toString() + '/' + sum_n_trials.toString();
+  }
+}
+
+function finishTab()
+  {
+    showTab(0);
+    console.log(task.tab);
+  }
+
+function nextTab()
+  {
+    // console.log(totalTabs)
+    console.log(task.tab);
+    console.log(task.block_Curr);
+    //  get all documents by tabs
+    var x = document.getElementsByClassName("tab");
+    // Exit the function if any field in the current tab is invalid:
+    if (!validateForm()) return false;
+    if (x[task.tab].id == "final2") {
+      task.tab = 0;
+      showTab(task.tab);
+      return;
+    }
+    // 跳回
+    if (x[task.tab].id == "final1") {
+       if (task.block_Curr >= 0 && task.block_Curr <= 2) {
+            // 跳回 enter_probe1
+            task.tab = getTabIndexById("enter_probe1");
+            updateCurrentBlockStage();
+            showTab(task.tab);
+            return; // 退出当前函数
+        } else if (task.block_Curr > 2 && task.block_Curr <= 4) {
+          // 跳回 enter_probe2
+          task.tab = getTabIndexById("enter_probe2");
+          updateCurrentBlockStage();
+            showTab(task.tab);
+            return; // 退出当前函数
+        } else if (task.block_Curr > 4 && task.block_Curr <= 6) {
+          // 跳回 enter_probe3
+          updateCurrentBlockStage();
+          task.tab = getTabIndexById("enter_probe3");
+            showTab(task.tab);
+            return; // 退出当前函数
+        } else if (task.block_Curr > 6 && task.block_Curr <= 8) {
+          // 跳回 enter_probe4
+          updateCurrentBlockStage();
+          task.tab = getTabIndexById("enter_probe4");
+            showTab(task.tab);
+            return; // 退出当前函数
+        } else if (task.block_Curr > 8 && task.block_Curr <= 10) {
+          // 跳回 enter_probe5
+          updateCurrentBlockStage();
+          task.tab = getTabIndexById("enter_probe5");
+            showTab(task.tab);
+            return; // 退出当前函数
+        } else if (task.block_Curr > 10) {
+            showTab(13);
+            return; // 退出当前函数
+        }
+    }
+    // If you were in the first tab: store prolific id in variable
+    if (task.tab == 0)
+    {
+      task.subjectTag = document.getElementById('subject').value;
+      task.name = document.getElementById('name').value;
+      task.session = document.getElementById('session').value;
+      task.day = document.getElementById('day').value;
+      task.blocks = document.getElementById('initialBlock').value;// Version 4 240729;
+      console.log('Subject: ' + task.subjectTag);
+      console.log('name: ' + task.name);  
+      console.log('session: ' + task.session);  
+      console.log('day: ' + task.day);  
+      console.log('blocks: ' + task.blocks);  
+      if(task.session == "0"){
+        task.tab = 0;
+      }else{
+        task.tab = 3;
+      }
+     /*  if ( (task.subjectTag == 43 ||  task.subjectTag == 45 || task.subjectTag == 46 ||  task.subjectTag == 47 || task.subjectTag == 49|| task.subjectTag == 51 || task.subjectTag == 52)) {
+        document.querySelectorAll('p').forEach(function(paragraph) {
+            paragraph.innerHTML = paragraph.innerHTML.replace(/左键/g, 'temp').replace(/右键/g, '左键').replace(/temp/g, '右键');
+        }); 
+    } */
+     
+    }  
+    // Increase tab number    //do the loop 
+
+    if(task.tab == 1)
+    {
+      for (currTrial = 0; currTrial < task.n_trials; currTrial +=1)
+        {
+          if(!(task.subjectTag=="")){
+            task.trial_target[currTrial] = targets[0][task.day-1][0][task.trial_target_ids[currTrial]];
+            task.trial_program[currTrial] =null;
+          }
+        }
+    }
+    if(task.tab < (totalTabs-7)||task.block_Curr == (task.blocks_AllNums))
+      {
+        if (whetherbreakloop) {
+          task.tab = 7;
+          task.block_Curr = task.block_Curr -1;
+          whetherbreakloop = false;
+        } else {
+        task.tab += 1; 
+        }
+        //console.log([task.tab].id)
+      }
+    else if(task.tab>=(totalTabs-7))
+      { 
+        if(x[task.tab].id == "final1"){
+          task.tab = task.tab - (task.blocks_tabs); 
+          //console.log([task.tab].id)
+        } else if (x[task.tab].id == "redo"){
+          console.log("页面回到:",tab_save);
+          task.tab = tab_save;
+        } else if (x[task.tab].id == "enter_probe1"){
+          task.tab = 5;
+        } else if (x[task.tab].id == "enter_probe2"){
+          task.tab = 5;
+        } else if (x[task.tab].id == "enter_probe3"){
+          task.tab = 5;
+        } else if (x[task.tab].id == "enter_probe4"){
+          task.tab = 5;
+        } else if (x[task.tab].id == "enter_probe5"){
+          task.tab = 5;
+        } 
+      }
+    // If this is the last tab: save data and redirect to prolific
+    if (task.tab == totalTabs-1)
+      {
+      // Download data
+      showTab(task.tab);
+      //saveData();  // Version 4 240729;cause the final Block will download b-6,delete it. and data b6 == data b5
+      }
+    else
+      {
+      // And display next tab
+      showTab(task.tab);
+      }
+      
+  }
+
+function getTabIndexById(tabId) {
+    var tabs = document.getElementsByClassName("tab");
+    for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].id === tabId) {
+            return i;
+        }
+    }
+    return -1; // 如果没有找到对应的 tabId，返回 -1
+}
+  
+function validateForm() 
+  {
+  // This function deals with validation of the form fields
+  var x, y, i, valid = true;
+  x = document.getElementsByClassName("tab");
+  // First, check all input fields
+  y = x[task.tab].getElementsByTagName("input");
+  for (i = 0; i < y.length; i++) 
+    {
+    // If a field is empty...
+    if (y[i].value == "") 
+      {
+      // add an "invalid" class to the field:
+      y[i].className += " invalid";
+      // and set the current valid status to false
+      valid = false;
+      }
+    }
+  // Then, check all select fields
+  y = x[task.tab].getElementsByTagName("select");
+  for (i = 0; i < y.length; i++) 
+    {
+    // If a field is empty...
+    if (y[i].value == "0") 
+      {   
+      // add an "invalid" class to the field:
+      y[i].className += " invalid";
+      // and set the current valid status to false
+      valid = false;
+      }
+    }    
+  return valid; // return the valid status
+  }
+
+function showLoc() 
+  {
+
+
+  // On refreshing, the iFrameID variable might nog be set yet. If that's the case, wait a bit longer
+  if (locFrame == null)
+    {
+    // Log that we need to wait for a bit longer
+    console.log('Loc_iFrameID has not been set; wait 1s and try to display again');
+    // Wait a second so the sketch can load, then try again
+    setTimeout(showLoc, 1000);
+    }
+  else
+    {
+  
+    // Set initial time stamp
+    task.start = Date.now();
+    // Initialise task frame, passing task variable down
+    locFrame.initTask(task);
+
+    }
+  }    
+  
+// Display the specified page of the task.trials tab
+function showTrace() 
+  {
+
+
+  // On refreshing, the iFrameID variable might nog be set yet. If that's the case, wait a bit longer
+  if (trialFrame == null)
+    {
+    // Log that we need to wait for a bit longer
+    console.log('Trace_iFrameID has not been set; wait 1s and try to display again');
+    // Wait a second so the sketch can load, then try again
+    setTimeout(showTrace, 1000);
+    }
+  else
+    {
+    // Set initial time stamp
+    task.start = Date.now();
+    // Initialise task frame, passing task variable down
+    trialFrame.initTask(task);
+    }
+  }        
+ //Display the specified page of the task.probe tab
+ function showProbe() 
+  {
+  // On refreshing, the iFrameID variable might nog be set yet. If that's the case, wait a bit longer
+  if (probeFrame == null)
+    {
+    // Log that we need to wait for a bit longer
+    console.log('Probe_iFrameID has not been set; wait 1s and try to display again');
+    // Wait a second so the sketch can load, then try again
+    setTimeout(showProbe, 1000);
+    }
+  else
+    {
+    // Set initial time stamp
+    task.start = Date.now();
+    // Initialise task frame, passing task variable down
+    probeFrame.initTask(task);
+    }
+  }                                                
+// Called after calculation of score in tracing game is finshed
+function finishedTrace(iFrameID)
+  {
+  // Collect results
+  task = iFrameID.task;
+  console.log('called parent trace finished');
+  // Update local storage
+  localStorage.setItem("task", JSON.stringify(task));
+  }                                                                                      
+
+/* Randomize array in-place using Durstenfeld shuffle algorithm */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}  
+  
+// Keyboard key press: activate corresponding button, if available
+window.addEventListener("keyup", function(event)
+  {
+  // Cancel the default action, if needed
+  event.preventDefault();
+  // Arrow down: download Xdata
+  if (event.keyCode === 40) 
+    saveData();
+  });
+  
+  function saveMouseData()
+  {
+    console.log("已保存鼠标信息");
+  // Build date object from startTime: if loaded from localstorage, it has become a string
+  task.startTime = new Date(task.startTime);
+  // Build filename
+  var filename = 'sub-'+task.subjectTag + '_name-' + task.name.toString() + '_v-' + task.version.toString() + '_s-'+task.session.toString()+ "_"+task.currentID.toString()+"_b-"+task.block_Curr.toString()+"_t-"+task.trial.toString()+ "_"
+    + task.startTime.getFullYear().toString() + '-' + ('00' + (task.startTime.getMonth()+1).toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getDate().toString()).slice(-'00'.length) + '_' 
+    + ('00' + task.startTime.getHours().toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getMinutes().toString()).slice(-'00'.length) + '-' + ('00' +  task.startTime.getSeconds().toString()).slice(-'00'.length);  
+  var result = JSON.stringify(task.mousePositions);
+  var blob = new Blob([result], {type: "text/plain;charset=utf-8"});
+  saveAs(blob, filename + ".txt");
+  task.mousePositions=[];
+
+  }
+function saveData()
+  {
+  // Build date object from startTime: if loaded from localstorage, it has become a string
+  task.startTime = new Date(task.startTime);
+  // Build filename
+  var filename = 'sub-'+task.subjectTag + '_name-' + task.name.toString() + '_v-' + task.version.toString() + '_s-'+task.session.toString()+ "_"+task.currentID.toString()+"_b-"+task.block_Curr.toString()+ "_"
+    + task.startTime.getFullYear().toString() + '-' + ('00' + (task.startTime.getMonth()+1).toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getDate().toString()).slice(-'00'.length) + '_' 
+    + ('00' + task.startTime.getHours().toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getMinutes().toString()).slice(-'00'.length) + '-' + ('00' +  task.startTime.getSeconds().toString()).slice(-'00'.length);  
+  var result = JSON.stringify(task);
+  
+  var blob = new Blob([result], {type: "text/plain;charset=utf-8"});
+  saveAs(blob, filename + ".txt");
+  }
+  // function saveVoiceData()
+  // {
+  // // Build date object from startTime: if loaded from localstorage, it has become a string
+  // task.startTime = new Date(task.startTime);
+  // // Build filename
+  // var filename = 'sub-'+task.subjectTag + '_name-' + task.name.toString() + '_v-' + task.version.toString() + '_s-'+task.session.toString()+ "_"+task.currentID.toString()+"_b-"+task.block_num.toString()+"_"+"_trials-"+task.trial.toString()+
+  //    task.startTime.getFullYear().toString() + '-' + ('00' + (task.startTime.getMonth()+1).toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getDate().toString()).slice(-'00'.length) + '_' 
+  //   + ('00' + task.startTime.getHours().toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getMinutes().toString()).slice(-'00'.length) + '-' + ('00' +  task.startTime.getSeconds().toString()).slice(-'00'.length);  
+  // var result = JSON.stringify(task);
+  
+  // var blob = new Blob([result], {type: "text/plain;charset=utf-8"});
+  // saveAs(blob, filename + ".wav");
+  // }
+// function postData()
+//   {
+//   // Build date object from startTime: if loaded from localstorage, it has become a string
+//   task.startTime = new Date(task.startTime);
+//   // Build filename
+//   var filename = task.subjectTag + '_v' + task.version.toString() + '_' 
+//     + task.startTime.getFullYear().toString() + '-' + ('00' + (task.startTime.getMonth()+1).toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getDate().toString()).slice(-'00'.length) + '_' 
+//     + ('00' + task.startTime.getHours().toString()).slice(-'00'.length) + '-' + ('00' + task.startTime.getMinutes().toString()).slice(-'00'.length) + '-' + ('00' +  task.startTime.getSeconds().toString()).slice(-'00'.length);  
+//   var result = task;
+//   // Build data string by stringifying result object
+//   var stringToWrite = encodeURI(JSON.stringify(result));
+//   console.log(filename);
+//   console.log(stringToWrite);
+//   console.log(result);
+//   // Set post parameters
+//   var url = "https://jjwbakermans.com/tetrislego/data/savejson.php";
+//   var method = "POST";
+//   var postData = "filename=" + filename + "&data=" + stringToWrite;  
+  
+//   // Make sure posting is asynchrounous: doesn't block other functionality
+//   var shouldBeAsync = true;
+//   // Create request
+//   var request = new XMLHttpRequest();
+//   // This function attached to the XMLHttpRequest "onload" property specifies how
+//   // the HTTP response will be handled. 
+//   request.onload = function () {
+//      // You can get all kinds of information about the HTTP response.
+//      console.log("Status: " + String(request.status));
+//      console.log("Response: " + request.responseText);
+//      // After finishing: go to task completion page
+//      if (task.tab == totalTabs)
+//       window.location = "https://app.prolific.co/submissions/complete?cc=C1WLJZ4I";
+//   }
+//   // Set more request parameters
+//   request.open(method, url, shouldBeAsync);
+//   // Send the proper header information along with the request
+//   request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+//   // Actually send the request to the server.
+//   request.send(postData);  
+//   }
+    </script>
+  </body>
+</html>
